@@ -21,10 +21,19 @@ func _ready() -> void:
 		_overlay.visible = false
 	if _speed_lines:
 		_speed_lines.emitting = false
+	set_process_unhandled_input(true)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if GameState.phase != GameState.Phase.PLAYING:
+		return
+	if event.is_action_pressed("hyperspace"):
+		try_jump()
+		return
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_H or event.physical_keycode == KEY_H:
+			try_jump()
 
 func _process(delta: float) -> void:
-	if GameState.phase == GameState.Phase.PLAYING and Input.is_action_just_pressed("hyperspace"):
-		try_jump()
 	if _active:
 		_timer -= delta
 		if _overlay and _overlay is ColorRect:

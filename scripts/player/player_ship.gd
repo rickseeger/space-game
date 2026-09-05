@@ -49,11 +49,19 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	_update_vfx()
 
+func _down(action: String, keys: Array) -> bool:
+	if Input.is_action_pressed(action):
+		return true
+	for k in keys:
+		if Input.is_physical_key_pressed(k) or Input.is_key_pressed(k):
+			return true
+	return false
+
 func _handle_turning(delta: float) -> void:
 	var turn := 0.0
-	if Input.is_action_pressed("turn_left"):
+	if _down("turn_left", [KEY_A, KEY_LEFT]):
 		turn += 1.0
-	if Input.is_action_pressed("turn_right"):
+	if _down("turn_right", [KEY_D, KEY_RIGHT]):
 		turn -= 1.0
 	yaw += turn * TURN_SPEED * delta
 	rotation.y = yaw
@@ -61,16 +69,16 @@ func _handle_turning(delta: float) -> void:
 func _handle_thrust(delta: float) -> void:
 	var forward := 0.0
 	var strafe := 0.0
-	if Input.is_action_pressed("move_forward"):
+	if _down("move_forward", [KEY_W, KEY_UP]):
 		forward += 1.0
-	if Input.is_action_pressed("move_back"):
+	if _down("move_back", [KEY_S, KEY_DOWN]):
 		forward -= 0.45
-	if Input.is_action_pressed("strafe_left"):
+	if _down("strafe_left", [KEY_Q]):
 		strafe -= 1.0
-	if Input.is_action_pressed("strafe_right"):
+	if _down("strafe_right", [KEY_E]):
 		strafe += 1.0
 
-	var boosting := Input.is_action_pressed("boost") and boost_energy > 0.0 and forward > 0.0
+	var boosting := _down("boost", [KEY_SHIFT]) and boost_energy > 0.0 and forward > 0.0
 	if boosting:
 		boost_energy = maxf(0.0, boost_energy - BOOST_DRAIN * delta)
 	else:
@@ -88,7 +96,7 @@ func _handle_thrust(delta: float) -> void:
 
 func _handle_weapons(delta: float) -> void:
 	_fire_cd = maxf(0.0, _fire_cd - delta)
-	if Input.is_action_pressed("fire") and _fire_cd <= 0.0:
+	if _down("fire", [KEY_SPACE]) and _fire_cd <= 0.0:
 		_fire()
 		_fire_cd = FIRE_COOLDOWN
 

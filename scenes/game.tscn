@@ -1,0 +1,263 @@
+[gd_scene load_steps=12 format=3 uid="uid://bqgame001"]
+
+[ext_resource type="Script" path="res://scripts/systems/game_world.gd" id="1_game"]
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/enemy.tscn" id="3_enemy"]
+[ext_resource type="Script" path="res://scripts/systems/wave_controller.gd" id="4_wave"]
+[ext_resource type="Script" path="res://scripts/systems/hyperspace_controller.gd" id="5_hyper"]
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="6_hud"]
+[ext_resource type="Script" path="res://scripts/ui/game_over.gd" id="7_over"]
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 1
+background_color = Color(0.01, 0.015, 0.04, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.15, 0.18, 0.28, 1)
+ambient_light_energy = 0.8
+glow_enabled = true
+glow_intensity = 0.6
+glow_bloom = 0.3
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_stars"]
+emission_shape = 3
+emission_box_extents = Vector3(70, 40, 70)
+direction = Vector3(0, 0, 1)
+spread = 0.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.05
+scale_max = 0.2
+color = Color(0.85, 0.9, 1, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_star"]
+radius = 0.08
+height = 0.16
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_lines"]
+emission_shape = 3
+emission_box_extents = Vector3(12, 8, 8)
+direction = Vector3(0, 0, 1)
+spread = 5.0
+initial_velocity_min = 40.0
+initial_velocity_max = 80.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.05
+scale_max = 0.12
+color = Color(0.6, 0.85, 1, 0.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_line"]
+size = Vector3(0.05, 0.05, 1.2)
+
+[node name="Game" type="Node3D"]
+script = ExtResource("1_game")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.321394, 0.383022, 0, 0.766044, 0.642788, -0.5, -0.55667, 0.663414, 0, 0, 0)
+light_energy = 1.2
+
+[node name="Starfield" type="GPUParticles3D" parent="."]
+amount = 400
+lifetime = 8.0
+visibility_aabb = AABB(-80, -80, -80, 160, 160, 160)
+process_material = SubResource("ParticleProcessMaterial_stars")
+draw_pass_1 = SubResource("SphereMesh_star")
+
+[node name="SpeedLines" type="GPUParticles3D" parent="."]
+emitting = false
+amount = 64
+lifetime = 0.35
+visibility_aabb = AABB(-30, -30, -30, 60, 60, 60)
+process_material = SubResource("ParticleProcessMaterial_lines")
+draw_pass_1 = SubResource("BoxMesh_line")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+
+[node name="Enemies" type="Node3D" parent="."]
+
+[node name="WaveController" type="Node" parent="."]
+script = ExtResource("4_wave")
+enemy_scene = ExtResource("3_enemy")
+spawn_root_path = NodePath("../Enemies")
+
+[node name="HyperspaceLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="HyperspaceOverlay" type="ColorRect" parent="HyperspaceLayer"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.4, 0.7, 1, 0)
+
+[node name="HyperspaceController" type="Node" parent="."]
+script = ExtResource("5_hyper")
+overlay_path = NodePath("../HyperspaceLayer/HyperspaceOverlay")
+speed_lines_path = NodePath("../SpeedLines")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("6_hud")
+
+[node name="Root" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Top" type="HBoxContainer" parent="HUD/Root"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 16.0
+offset_right = -24.0
+offset_bottom = 48.0
+grow_horizontal = 2
+theme_override_constants/separation = 40
+
+[node name="ScoreLabel" type="Label" parent="HUD/Root/Top"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "SCORE  0"
+
+[node name="SectorLabel" type="Label" parent="HUD/Root/Top"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "SECTOR 1  ·  WAVE 0"
+
+[node name="VBox" type="VBoxContainer" parent="HUD/Root"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -130.0
+offset_right = 280.0
+offset_bottom = -24.0
+grow_vertical = 0
+theme_override_constants/separation = 6
+
+[node name="HullLabel" type="Label" parent="HUD/Root/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "HULL"
+
+[node name="HullBar" type="ProgressBar" parent="HUD/Root/VBox"]
+custom_minimum_size = Vector2(240, 14)
+layout_mode = 2
+value = 100.0
+show_percentage = false
+
+[node name="ShieldLabel" type="Label" parent="HUD/Root/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "SHIELDS"
+
+[node name="ShieldBar" type="ProgressBar" parent="HUD/Root/VBox"]
+custom_minimum_size = Vector2(240, 14)
+layout_mode = 2
+max_value = 60.0
+value = 60.0
+show_percentage = false
+
+[node name="BoostLabel" type="Label" parent="HUD/Root/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "BOOST"
+
+[node name="BoostBar" type="ProgressBar" parent="HUD/Root/VBox"]
+custom_minimum_size = Vector2(240, 10)
+layout_mode = 2
+value = 100.0
+show_percentage = false
+
+[node name="WarningLabel" type="Label" parent="HUD/Root"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 80.0
+offset_right = 300.0
+offset_bottom = 120.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+
+[node name="Crosshair" type="Control" parent="HUD/Root"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="H" type="ColorRect" parent="HUD/Root/Crosshair"]
+layout_mode = 0
+offset_left = -10.0
+offset_top = -1.0
+offset_right = 10.0
+offset_bottom = 1.0
+color = Color(0.6, 0.9, 1, 0.7)
+
+[node name="V" type="ColorRect" parent="HUD/Root/Crosshair"]
+layout_mode = 0
+offset_left = -1.0
+offset_top = -10.0
+offset_right = 1.0
+offset_bottom = 10.0
+color = Color(0.6, 0.9, 1, 0.7)
+
+[node name="GameOver" type="CanvasLayer" parent="."]
+layer = 20
+script = ExtResource("7_over")
+
+[node name="Panel" type="PanelContainer" parent="GameOver"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -140.0
+offset_right = 180.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="GameOver/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="GameOver/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.35, 0.3, 1)
+theme_override_font_sizes/font_size = 28
+text = "SHIP DESTROYED"
+horizontal_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="GameOver/Panel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "FINAL SCORE
+0"
+horizontal_alignment = 1
+
+[node name="RetryButton" type="Button" parent="GameOver/Panel/VBox"]
+layout_mode = 2
+text = "RETRY"
+
+[node name="MenuButton" type="Button" parent="GameOver/Panel/VBox"]
+layout_mode = 2
+text = "MAIN MENU"

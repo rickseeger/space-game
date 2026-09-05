@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/effects/explosion_fx.gd" id="1_a23ol"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_y4xu1"]
+direction = Vector3(0, 1, 0)
+spread = 180.0
+initial_velocity_min = 6.0
+initial_velocity_max = 22.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.2
+scale_max = 0.7
+color = Color(1, 0.45, 0.1, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_1t7ow"]
+radius = 0.2
+height = 0.4
+
+[node name="Explosion" type="Node3D"]
+script = ExtResource("1_a23ol")
+
+[node name="Particles" type="GPUParticles3D" parent="."]
+emitting = false
+amount = 40
+lifetime = 0.8
+one_shot = true
+explosiveness = 0.95
+process_material = SubResource("ParticleProcessMaterial_y4xu1")
+draw_pass_1 = SubResource("SphereMesh_1t7ow")

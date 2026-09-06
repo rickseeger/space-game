@@ -31,8 +31,7 @@ need scripts/combat/health.gd
 need scripts/combat/score_table.gd
 need scripts/systems/wave_definitions.gd
 need tests/run_tests.gd
-need assets/audio/laser.wav
-need assets/audio/explosion.wav
+need scripts/autoload/audio_fx.gd
 need icon.svg
 need LICENSE
 need README.md

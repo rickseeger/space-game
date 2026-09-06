@@ -47,10 +47,10 @@ flatpak install -y flathub org.godotengine.Godot
 ```bash
 git clone https://github.com/rickseeger/space-game.git
 cd space-game
-godot --editor .          # first open imports resources
-# or play immediately:
-godot .
+godot --path .            # play immediately — no editor import step required
 ```
+
+SFX are generated in code (no WAV import). Optional: `godot --editor .` if you want the editor.
 
 ## Play
 

@@ -28,8 +28,10 @@ void Ship::update(float dt) {
     );
     glm::vec3 angErr = desiredAng - angVel;
     angVel += angErr * std::min(1.f, cfg.angAccel * dt);
-    // Rotational damping toward desired (arcade feel)
-    angVel *= std::exp(-cfg.angDamp * 0.15f * dt);
+    // Soft damp residual spin when stick released
+    float stick = std::fabs(pitchInput) + std::fabs(yawInput) + std::fabs(rollInput);
+    float damp = (stick < 0.05f) ? cfg.angDamp : cfg.angDamp * 0.25f;
+    angVel *= std::exp(-damp * dt);
     float angSpd = glm::length(angVel);
     if (angSpd > cfg.maxAngSpeed)
         angVel *= cfg.maxAngSpeed / angSpd;

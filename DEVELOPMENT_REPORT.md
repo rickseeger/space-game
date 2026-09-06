@@ -44,6 +44,11 @@ Replaced the prior Godot prototype with a from-scratch C++17 / OpenGL 3.3 arcade
 3. AI: longer fire holds, stricter aim gate, farther wave-1 spawn, spawn grace so openings aren’t unfair
 4. Smoke-tested under `xvfb` + Mesa software GL; screenshots in `screenshots/`
 
+## Polish passes (post-first-push)
+
+2. Mouse look less twitchy; angular damp when stick released; laser muzzle sparks
+3. Larger explosion flash; brighter enemies; bigger radar blips; title screenshot path
+
 ## Known limitations
 
 - No gamepad; keyboard+mouse only

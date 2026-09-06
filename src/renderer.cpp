@@ -290,8 +290,8 @@ void Renderer::drawExplosionSpheres(const std::vector<std::pair<glm::vec3, float
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     for (auto& sp : spheres) {
         float age = sp.second;
-        float radius = 1.f + age * 18.f;
-        float alpha = std::max(0.f, 1.f - age / 0.55f);
+        float radius = 1.2f + age * 24.f;
+        float alpha = std::max(0.f, 1.f - age / 0.7f);
         glm::mat4 model = glm::translate(glm::mat4(1), sp.first)
                         * glm::scale(glm::mat4(1), glm::vec3(radius));
         glm::mat4 mvp = proj * view * model;

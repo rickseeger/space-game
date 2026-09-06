@@ -194,7 +194,7 @@ void Hud::drawTargetBox(const HudInfo& info, const ChaseCamera& cam, int fbW, in
 }
 
 void Hud::drawRadar(const HudInfo& info, int fbW, int fbH) {
-    float size = std::min(140.f, fbW * 0.14f);
+    float size = std::min(155.f, fbW * 0.155f);
     float cx = fbW - size - 24.f;
     float cy = fbH - size - 24.f;
     // Background
@@ -235,7 +235,8 @@ void Hud::drawRadar(const HudInfo& info, int fbW, int fbH) {
         glm::vec4 col = elev > 0.15f ? glm::vec4(1.f,0.85f,0.2f,1.f)
                       : elev < -0.15f ? glm::vec4(1.f,0.35f,0.15f,1.f)
                       : glm::vec4(1.f,0.55f,0.15f,1.f);
-        drawRect(px-2.5f, py-2.5f, 5.f, 5.f, col, fbW, fbH);
+        drawRect(px-3.5f, py-3.5f, 7.f, 7.f, col, fbW, fbH);
+        drawRect(px-1.5f, py-1.5f, 3.f, 3.f, glm::vec4(1,1,1,0.9f), fbW, fbH);
     }
     drawText("RADAR", cx - size + 4, cy - size - 14, 2.f, glm::vec4(0.3f,0.9f,1.f,0.7f), fbW, fbH);
 }

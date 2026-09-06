@@ -119,7 +119,7 @@ void Game::spawnWave(int w) {
         Enemy e;
         e.ship.isPlayer = false;
         e.ship.id = 100 + i + w * 10;
-        e.ship.color = glm::vec3(1.f, 0.4f + rng.uniform(0.f, 0.2f), 0.12f);
+        e.ship.color = glm::vec3(1.f, 0.55f + rng.uniform(0.f, 0.25f), 0.18f);
         e.ship.cfg.thrustAccel = 42.f + w * 1.5f;
         e.ship.cfg.maxSpeed = 72.f + w * 2.f;
         e.ship.cfg.linearDrag = 0.4f;
@@ -216,11 +216,12 @@ void Game::handleInput(float dt) {
         float dy = (float)(my - lastMouseY);
         lastMouseX = mx; lastMouseY = my;
         float sens = 0.0028f;
-        player.yawInput = clampf(-dx * sens / (dt + 1e-4f) / player.cfg.pitchYawRate, -1.f, 1.f);
-        player.pitchInput = clampf(-dy * sens / (dt + 1e-4f) / player.cfg.pitchYawRate, -1.f, 1.f);
-        // Also apply as direct angular impulse for snappy feel
-        player.angVel.y += -dx * sens * 25.f * dt * 60.f;
-        player.angVel.x += -dy * sens * 25.f * dt * 60.f;
+        // Map mouse delta to desired angular rates (orientation only — not velocity)
+        float rateScale = 1.15f;
+        player.yawInput = clampf(-dx * sens * rateScale / (dt + 1e-4f) / player.cfg.pitchYawRate, -1.f, 1.f);
+        player.pitchInput = clampf(-dy * sens * rateScale / (dt + 1e-4f) / player.cfg.pitchYawRate, -1.f, 1.f);
+        player.angVel.y += -dx * sens * 12.f;
+        player.angVel.x += -dy * sens * 12.f;
     }
 
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) player.rollInput -= 1.f;
@@ -234,8 +235,12 @@ void Game::handleInput(float dt) {
     bool fire = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS
              || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
     if (state == GameState::Playing && fire) {
-        if (playerWeapon.tryFire(player, lasers))
+        if (playerWeapon.tryFire(player, lasers)) {
             audio.playLaser(true);
+            for (int i = 0; i < 2; i++)
+                particles.emitBurst(player.position + player.forward() * 3.f,
+                    playerWeapon.color, 3, 8.f, 0.12f, rng);
+        }
     }
     (void)dt;
 }
@@ -384,7 +389,7 @@ void Game::update(float dt) {
     debris.update(dt);
     for (auto& sp : explosionSpheres) sp.second += dt;
     explosionSpheres.erase(std::remove_if(explosionSpheres.begin(), explosionSpheres.end(),
-        [](const auto& p){ return p.second > 0.6f; }), explosionSpheres.end());
+        [](const auto& p){ return p.second > 0.75f; }), explosionSpheres.end());
     audio.update(dt);
 }
 
@@ -472,25 +477,26 @@ void Game::run() {
         render();
         glfwSwapBuffers(window);
 
-        if (autoScreenshotFrames > 0) {
-            autoScreenshotFrames--;
-            if (autoScreenshotFrames == 0) {
-                // transition to playing for a nicer shot
-                if (state == GameState::Title) startGame();
+        static bool shotTitle = false, shotPlay = false, shotCombat = false;
+        if (std::getenv("VD_SCREENSHOT")) {
+            if (!shotTitle && time > 1.0f && state == GameState::Title) {
+                captureScreenshot("/workspace/space-game/screenshots/title.png");
+                shotTitle = true;
+                startGame();
+            }
+            if (shotTitle && !shotPlay && time > 3.0f) {
+                captureScreenshot("/workspace/space-game/screenshots/gameplay.png");
+                shotPlay = true;
+            }
+            if (shotPlay && !shotCombat && time > 5.5f) {
+                captureScreenshot("/workspace/space-game/screenshots/combat.png");
+                shotCombat = true;
+                glfwSetWindowShouldClose(window, 1);
             }
         }
-        if (screenshotQueued || (std::getenv("VD_SCREENSHOT") && time > 2.5f && time < 2.6f)) {
-            captureScreenshot("/workspace/space-game/screenshots/gameplay.png");
+        if (screenshotQueued) {
+            captureScreenshot("/workspace/space-game/screenshots/manual.png");
             screenshotQueued = false;
-            if (std::getenv("VD_SCREENSHOT")) {
-                // second shot a bit later handled below
-            }
-        }
-        static bool shot2 = false;
-        if (std::getenv("VD_SCREENSHOT") && time > 5.0f && !shot2) {
-            captureScreenshot("/workspace/space-game/screenshots/combat.png");
-            shot2 = true;
-            glfwSetWindowShouldClose(window, 1);
         }
     }
 }

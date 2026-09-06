@@ -52,6 +52,9 @@ func _on_sector(sector: int) -> void:
 
 func _on_warning(message: String, severity: int) -> void:
 	warning_label.text = message
+	if message.strip_edges() == "":
+		_warn_timer = 0.0
+		return
 	match severity:
 		2:
 			warning_label.modulate = Color(1.0, 0.2, 0.2)

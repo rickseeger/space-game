@@ -32,10 +32,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif GameState.phase == GameState.Phase.PAUSED:
 			get_tree().paused = false
 			GameState.phase = GameState.Phase.PLAYING
+			EventBus.warning.emit("", 0)
 
 func _process(_delta: float) -> void:
 	if player and is_instance_valid(player) and player.visible:
 		var sp: float = player.velocity.length()
+		if starfield:
+			starfield.global_position = player.global_position
 		if speed_lines:
 			speed_lines.emitting = sp > 35.0 or GameState.phase == GameState.Phase.HYPERSPACE
 			speed_lines.global_position = player.global_position

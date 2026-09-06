@@ -49,9 +49,14 @@ func _spawn_enemy(typ: String, radius: float, index: int) -> void:
 		return
 	var e = enemy_scene.instantiate()
 	_spawn_root.add_child(e)
-	var angle := (TAU * float(index) / 8.0) + randf() * 0.4
-	var height := randf_range(-6.0, 6.0)
-	e.global_position = Vector3(cos(angle) * radius, height, sin(angle) * radius)
+	var origin := Vector3.ZERO
+	var players := get_tree().get_nodes_in_group("player")
+	if players.size() > 0 and players[0] is Node3D:
+		origin = (players[0] as Node3D).global_position
+	var angle := (TAU * float(index) / 8.0) + randf() * 0.35
+	# Keep spawns near the flight plane — player has yaw-only controls.
+	var height := origin.y + randf_range(-1.25, 1.25)
+	e.global_position = origin + Vector3(cos(angle) * radius, height - origin.y, sin(angle) * radius)
 	e.configure(typ)
 
 func _on_wave_cleared(_sector: int, wave: int) -> void:

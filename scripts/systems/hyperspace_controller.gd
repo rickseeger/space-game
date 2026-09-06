@@ -68,10 +68,24 @@ func _finish() -> void:
 		_overlay.visible = false
 	if _speed_lines:
 		_speed_lines.emitting = false
+	_recenter_player()
 	var bonus: int = ScoreTable.hyperspace_bonus(GameState.sector)
 	GameState.add_score(bonus)
 	GameState.finish_hyperspace()
 	EventBus.warning.emit("SECTOR %d — +%d" % [GameState.sector, bonus], 0)
+
+func _recenter_player() -> void:
+	# Jump surge carries the ship hundreds of units from origin; waves spawn near the
+	# player (see WaveController). Snap back so the next sector isn't empty void.
+	var players := get_tree().get_nodes_in_group("player")
+	for p in players:
+		if p is Node3D:
+			(p as Node3D).global_position = Vector3.ZERO
+			if p is CharacterBody3D:
+				(p as CharacterBody3D).velocity = Vector3.ZERO
+			if "yaw" in p:
+				p.yaw = 0.0
+				(p as Node3D).rotation = Vector3.ZERO
 
 ## Test helper: force jump readiness
 func force_ready_for_tests() -> void:

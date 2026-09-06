@@ -103,7 +103,9 @@ func _physics_process(delta: float) -> void:
 
 	var to_player := _player.global_position - global_position
 	var dist := to_player.length()
-	var desired_dir := to_player.normalized()
+	# Flatten chase into the yaw plane so yaw-only player aim can connect.
+	var flat := Vector3(to_player.x, 0.0, to_player.z)
+	var desired_dir := flat.normalized() if flat.length_squared() > 0.01 else to_player.normalized()
 
 	# Face player (guard against near-vertical aim)
 	if absf(desired_dir.dot(Vector3.UP)) < 0.98 and desired_dir.length_squared() > 0.001:
@@ -118,6 +120,8 @@ func _physics_process(delta: float) -> void:
 		approach = 0.15
 
 	velocity = -global_transform.basis.z * move_speed * approach
+	# Drift toward player's altitude so fights stay readable
+	velocity.y += clampf((_player.global_position.y - global_position.y) * 2.5, -move_speed * 0.35, move_speed * 0.35)
 	# Slight lateral weave
 	velocity += global_transform.basis.x * sin(Time.get_ticks_msec() * 0.002 + float(get_instance_id() % 100)) * move_speed * 0.25
 	move_and_slide()
@@ -131,10 +135,12 @@ func _shoot() -> void:
 	var p: Node3D = _projectile_scene.instantiate()
 	get_tree().current_scene.add_child(p)
 	p.global_transform = muzzle.global_transform
-	var aim := (_player.global_position - muzzle.global_position).normalized()
-	# Lead slightly
+	var aim_point := _player.global_position
 	if _player is CharacterBody3D:
-		aim = ((_player.global_position + (_player as CharacterBody3D).velocity * 0.25) - muzzle.global_position).normalized()
+		aim_point += (_player as CharacterBody3D).velocity * 0.25
+	# Bias aim onto the flight plane so shots aren't pure vertical snipes
+	aim_point.y = lerpf(muzzle.global_position.y, aim_point.y, 0.35)
+	var aim := (aim_point - muzzle.global_position).normalized()
 	if p.has_method("setup"):
 		p.setup(aim, projectile_damage, false, velocity)
 

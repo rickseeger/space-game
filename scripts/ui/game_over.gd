@@ -23,3 +23,12 @@ func _on_retry() -> void:
 func _on_menu() -> void:
 	GameState.phase = GameState.Phase.MENU
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not panel.visible:
+		return
+	if not event.is_pressed() or event.is_echo():
+		return
+	if event.is_action_pressed("fire") or event.is_action_pressed("ui_accept"):
+		_on_retry()
+		get_viewport().set_input_as_handled()

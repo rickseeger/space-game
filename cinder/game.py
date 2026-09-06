@@ -10,7 +10,7 @@ import pygame
 
 from .constants import (
     WIDTH, HEIGHT, FPS, BG, GOLD_LOSS_FRAC, PLAYER_MELEE_RANGE, EMBER, EMBER_HOT,
-    CREAM, DUEL_GLOW, CASTLE_CX, CASTLE_CY, VILLAGE_CX, VILLAGE_CY, BOSS_CX, BOSS_CY,
+    CREAM, GOLD, DUEL_GLOW, CASTLE_CX, CASTLE_CY, VILLAGE_CX, VILLAGE_CY, BOSS_CX, BOSS_CY,
     TITLE,
 )
 from .world import generate_world, draw_world

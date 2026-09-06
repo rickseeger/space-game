@@ -1,22 +1,18 @@
-# Godot 4
-.godot/
-*.translation
-export.cfg
-.import/
-
-# Build
 build/
-*.pck
-*.x86_64
-*.x86_32
-*.apk
-*.aab
-
-# OS / editor
-.DS_Store
-*~
-*.swp
+cmake-build-*/
+*.o
+*.a
+*.so
+*.out
+.cache/
+compile_commands.json
+*.user
 .vscode/
 .idea/
-
-# Local tools (not part of the game)
+*.log
+# screenshots/*.png  # commit reference shots
+!screenshots/.gitkeep
+third_party/glad_repo/
+__pycache__/
+*.swp
+*~

@@ -1,70 +1,69 @@
-# Vector Drift
+# Cinder
 
-A 3D space-combat arcade game in C++ / OpenGL. Newtonian inertia flight, dogfighting AI, neon HUD + radar.
+**An isometric open-world fantasy RPG** — you are a wizard who starts extremely weak and earns power through XP, gold, gear, and spells.
 
-**Feel:** classic vector-arcade combat + free-flight 3D dogfighting. Turning changes facing only — thrust changes velocity. Drift is a skill.
+Built with **Python 3.11+** and **pygame**. Procedural art, procedural audio, one authored story.
 
-## Requirements (Debian/Ubuntu)
+## Install & Run
 
 ```bash
-sudo apt install g++ cmake libglfw3-dev libgl1-mesa-dev pkg-config
+python3 -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+python -m cinder
 ```
 
-Optional for headless smoke tests: `xvfb`.
-
-## Build
+Or:
 
 ```bash
-./build.sh
+./run.sh
 ```
 
-Produces `build/vector_drift` (Release).
+Headless / CI smoke (needs Xvfb):
 
 ```bash
-./build.sh Debug   # optional
-```
-
-## Run
-
-```bash
-./build/vector_drift
-```
-
-Headless / CI:
-
-```bash
-LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a ./build/vector_drift
+xvfb-run -a ./run.sh --smoke 3
+xvfb-run -a ./run.sh --screenshot
 ```
 
 ## Controls
 
 | Input | Action |
 |-------|--------|
-| Mouse | Pitch / yaw |
-| Q / E | Roll |
-| W | Thrust |
-| S | Reverse / brake |
-| LMB or Space | Fire |
-| Left Shift or X | Velocity damp / match-speed assist |
-| Esc | Pause / resume |
-| R | Restart after death |
-| Space (title) | Launch |
+| WASD / Arrows | Move |
+| Space / Left mouse | Attack / cast |
+| E / Right mouse | Talk / interact |
+| 1 | Staff melee |
+| 2 | Emberbolt (unlocks at level 3) |
+| H | Drink a health vial |
+| I | Inventory |
+| Q | Quest log |
+| Esc | Pause |
 
-Controls are also shown on the title and pause screens.
+## Story
 
-## Gameplay
+You are an apprentice of **Ashfall Keep**. King Aldric will not name you a free mage until you recover the **Ember Relic**, stolen by the **Ash Drake** nesting in the **Cinder Nest** southeast of Ember Village.
 
-- Title → dogfight waves → death / score → restart
-- Start with 1 enemy and spawn grace; waves escalate
-- Score from kills, wave clears, and survival
-- Use radar (bottom-right) for off-screen contacts
-- Same inertia physics for you and enemies — intercept, overshoot, evade
+Travel the overworld, grind in the wilds, gear up in town, then face the Drake in a glowing **duel bubble**. Return the relic to the King.
 
-## Tech
+### Side quests
 
-- C++17, CMake, OpenGL 3.3 core, GLFW, GLM (FetchContent), Glad, miniaudio (procedural SFX)
-- All graphics procedural — no copyrighted assets
+- **Ore for the Forge** — Blacksmith Brenna wants 3 Iron Ore (from bandits).
+- **Pelts for the Inn** — Innkeeper Maro wants 4 Wolf Pelts (checkpoint + gold).
+
+## Features (V1 slice)
+
+- Isometric overworld: castle → village → scaling wilds
+- Real-time staff combat; Emberbolt spell at level 3
+- Hybrid **duel-bubble** boss fight (Ash Drake)
+- NPCs, dialogue, shops, inventory, quests
+- Death → wake at inn with partial gold loss
+- Title, HUD, pause, procedural SFX
+
+## Design notes
+
+See [DESIGN.md](DESIGN.md) for how this interprets the design bible (hybrid combat, weak→strong fantasy, scope cuts).
 
 ## License
 
-See `LICENSE`.
+MIT — see [LICENSE](LICENSE).

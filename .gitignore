@@ -1,18 +1,9 @@
-build/
-cmake-build-*/
-*.o
-*.a
-*.so
-*.out
-.cache/
-compile_commands.json
-*.user
-.vscode/
-.idea/
-*.log
-# screenshots/*.png  # commit reference shots
-!screenshots/.gitkeep
-third_party/glad_repo/
+.venv/
 __pycache__/
-*.swp
-*~
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.DS_Store
+*.log
+.pytest_cache/

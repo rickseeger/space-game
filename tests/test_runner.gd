@@ -1,6 +1,10 @@
 extends Node
 ## Attach to tests/test_main.tscn. Autoloads resolve normally.
 
+const Health = preload("res://scripts/combat/health.gd")
+const ScoreTable = preload("res://scripts/combat/score_table.gd")
+const WaveDefinitions = preload("res://scripts/systems/wave_definitions.gd")
+
 var _passed: int = 0
 var _failed: int = 0
 

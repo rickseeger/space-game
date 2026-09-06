@@ -2,6 +2,9 @@ extends Node
 class_name WaveController
 ## Spawns waves from WaveDefinitions and tracks clear → hyperspace gating.
 
+const WaveDefinitions = preload("res://scripts/systems/wave_definitions.gd")
+const ScoreTable = preload("res://scripts/combat/score_table.gd")
+
 signal request_hyperspace_hint
 
 @export var enemy_scene: PackedScene
@@ -29,8 +32,8 @@ func _process(delta: float) -> void:
 
 func _spawn_next_wave() -> void:
 	GameState.begin_wave()
-	var comp := WaveDefinitions.composition(GameState.sector, GameState.wave)
-	var radius := WaveDefinitions.spawn_radius(GameState.sector)
+	var comp: Array = WaveDefinitions.composition(GameState.sector, GameState.wave)
+	var radius: float = WaveDefinitions.spawn_radius(GameState.sector)
 	var spawned := 0
 	for entry in comp:
 		var typ: String = entry["type"]
@@ -44,7 +47,7 @@ func _spawn_next_wave() -> void:
 func _spawn_enemy(typ: String, radius: float, index: int) -> void:
 	if enemy_scene == null or _spawn_root == null:
 		return
-	var e: EnemyShip = enemy_scene.instantiate()
+	var e = enemy_scene.instantiate()
 	_spawn_root.add_child(e)
 	var angle := (TAU * float(index) / 8.0) + randf() * 0.4
 	var height := randf_range(-6.0, 6.0)
@@ -52,7 +55,7 @@ func _spawn_enemy(typ: String, radius: float, index: int) -> void:
 	e.configure(typ)
 
 func _on_wave_cleared(_sector: int, wave: int) -> void:
-	var bonus := ScoreTable.wave_clear_bonus(GameState.sector, wave)
+	var bonus: int = ScoreTable.wave_clear_bonus(GameState.sector, wave)
 	GameState.add_score(bonus)
 	EventBus.warning.emit("WAVE CLEAR +%d" % bonus, 0)
 	if wave < GameState.WAVES_PER_SECTOR:
@@ -62,10 +65,9 @@ func _on_wave_cleared(_sector: int, wave: int) -> void:
 		request_hyperspace_hint.emit()
 
 func _on_hyperspace_ended(_new_sector: int) -> void:
-	# Mild heal between sectors
 	var players := get_tree().get_nodes_in_group("player")
 	for p in players:
-		if p is PlayerShip and p.health:
+		if p.has_method("take_hit") and p.get("health"):
 			p.health.heal_hull(25.0)
 			p.health.shields = minf(p.health.max_shields, p.health.shields + 30.0)
 			EventBus.hull_changed.emit(p.health.hull, p.health.max_hull)

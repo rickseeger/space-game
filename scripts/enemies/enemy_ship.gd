@@ -2,6 +2,8 @@ extends CharacterBody3D
 class_name EnemyShip
 ## Base hostile with simple pursuit + shoot AI.
 
+const ScoreTable = preload("res://scripts/combat/score_table.gd")
+
 @export var enemy_type: String = "fighter"
 @export var move_speed: float = 22.0
 @export var turn_rate: float = 1.8
@@ -10,7 +12,7 @@ class_name EnemyShip
 @export var projectile_damage: float = 8.0
 @export var prefer_distance: float = 18.0
 
-@onready var health: Health = $Health
+@onready var health = $Health
 @onready var muzzle: Marker3D = $Muzzle
 
 var _player: Node3D
@@ -144,7 +146,7 @@ func _on_died() -> void:
 	if not _alive:
 		return
 	_alive = false
-	var pts := ScoreTable.points_for(enemy_type, GameState.sector)
+	var pts: int = ScoreTable.points_for(enemy_type, GameState.sector)
 	GameState.register_kill(enemy_type, pts)
 	_spawn_explosion()
 	queue_free()

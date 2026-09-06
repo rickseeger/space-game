@@ -2,6 +2,8 @@ extends Node
 class_name HyperspaceController
 ## Handles hyperspace jump VFX timing and sector transition.
 
+const ScoreTable = preload("res://scripts/combat/score_table.gd")
+
 @export var overlay_path: NodePath
 @export var speed_lines_path: NodePath
 
@@ -66,7 +68,7 @@ func _finish() -> void:
 		_overlay.visible = false
 	if _speed_lines:
 		_speed_lines.emitting = false
-	var bonus := ScoreTable.hyperspace_bonus(GameState.sector)
+	var bonus: int = ScoreTable.hyperspace_bonus(GameState.sector)
 	GameState.add_score(bonus)
 	GameState.finish_hyperspace()
 	EventBus.warning.emit("SECTOR %d — +%d" % [GameState.sector, bonus], 0)

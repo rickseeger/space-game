@@ -14,7 +14,7 @@ const BOOST_REGEN := 18.0
 const FIRE_COOLDOWN := 0.18
 const PROJECTILE_DAMAGE := 18.0
 
-@onready var health: Health = $Health
+@onready var health = $Health
 @onready var muzzle: Marker3D = $Muzzle
 @onready var engine: MeshInstance3D = $EngineGlow
 @onready var trail: GPUParticles3D = $Trail
